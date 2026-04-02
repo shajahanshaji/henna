@@ -1,9 +1,10 @@
 // Initialize AOS Animation Library
 AOS.init({
-  duration: 800,
+  duration: 600,
   once: true,
-  offset: 120,
-  easing: 'ease-out-quad'
+  offset: 80,
+  easing: 'ease-out-quad',
+  disable: window.innerWidth < 768 ? 'phone' : false
 });
 
 // Loader
@@ -11,33 +12,34 @@ window.addEventListener('load', () => {
   const loader = document.getElementById('loader');
   setTimeout(() => {
     loader.classList.add('hide');
-  }, 1800);
+  }, 1500);
 });
 
-// Custom Cursor
-const cursor = document.querySelector('.custom-cursor');
-const cursorFollower = document.querySelector('.custom-cursor-follower');
+// Custom Cursor - Only on desktop
+if (window.innerWidth > 768) {
+  const cursor = document.querySelector('.custom-cursor');
+  const cursorFollower = document.querySelector('.custom-cursor-follower');
 
-if (cursor && cursorFollower) {
-  document.addEventListener('mousemove', (e) => {
-    cursor.style.transform = `translate(${e.clientX - 5}px, ${e.clientY - 5}px)`;
-    cursorFollower.style.transform = `translate(${e.clientX - 22}px, ${e.clientY - 22}px)`;
-  });
+  if (cursor && cursorFollower) {
+    document.addEventListener('mousemove', (e) => {
+      cursor.style.transform = `translate(${e.clientX - 5}px, ${e.clientY - 5}px)`;
+      cursorFollower.style.transform = `translate(${e.clientX - 22}px, ${e.clientY - 22}px)`;
+    });
 
-  // Hover effect on interactive elements
-  const hoverElements = document.querySelectorAll('a, button, .product-card, .service-item, .gallery-item, .insta-post');
-  hoverElements.forEach(el => {
-    el.addEventListener('mouseenter', () => {
-      cursor.style.transform = `scale(1.8)`;
-      cursorFollower.style.transform = `scale(1.4)`;
-      cursorFollower.style.borderColor = 'rgba(230, 180, 34, 0.9)';
+    const hoverElements = document.querySelectorAll('a, button, .product-card, .service-item, .gallery-item, .insta-post');
+    hoverElements.forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cursor.style.transform = `scale(1.8)`;
+        cursorFollower.style.transform = `scale(1.4)`;
+        cursorFollower.style.borderColor = 'rgba(230, 180, 34, 0.9)';
+      });
+      el.addEventListener('mouseleave', () => {
+        cursor.style.transform = `scale(1)`;
+        cursorFollower.style.transform = `scale(1)`;
+        cursorFollower.style.borderColor = 'rgba(230, 180, 34, 0.5)';
+      });
     });
-    el.addEventListener('mouseleave', () => {
-      cursor.style.transform = `scale(1)`;
-      cursorFollower.style.transform = `scale(1)`;
-      cursorFollower.style.borderColor = 'rgba(230, 180, 34, 0.5)';
-    });
-  });
+  }
 }
 
 // Scroll Progress Bar
@@ -49,13 +51,6 @@ window.addEventListener('scroll', () => {
   if (progressBar) {
     progressBar.style.width = scrolled + '%';
   }
-  
-  // Parallax effect on hero image
-  const heroImage = document.querySelector('.hero-image img');
-  if (heroImage) {
-    const scrolled = window.pageYOffset;
-    heroImage.style.transform = `translateY(${scrolled * 0.05}px)`;
-  }
 });
 
 // Mobile menu toggle
@@ -65,6 +60,15 @@ const navLinks = document.getElementById('navLinks');
 if (menuToggle) {
   menuToggle.addEventListener('click', () => {
     navLinks.classList.toggle('active');
+    // Change icon
+    const icon = menuToggle.querySelector('i');
+    if (navLinks.classList.contains('active')) {
+      icon.classList.remove('fa-bars');
+      icon.classList.add('fa-times');
+    } else {
+      icon.classList.remove('fa-times');
+      icon.classList.add('fa-bars');
+    }
   });
 }
 
@@ -78,6 +82,9 @@ document.querySelectorAll('.nav-link').forEach(link => {
       target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       if (navLinks.classList.contains('active')) {
         navLinks.classList.remove('active');
+        const icon = menuToggle.querySelector('i');
+        icon.classList.remove('fa-times');
+        icon.classList.add('fa-bars');
       }
     }
   });
@@ -90,7 +97,7 @@ const navItems = document.querySelectorAll('.nav-link');
 window.addEventListener('scroll', () => {
   let current = '';
   sections.forEach(section => {
-    const sectionTop = section.offsetTop - 180;
+    const sectionTop = section.offsetTop - 150;
     const sectionHeight = section.clientHeight;
     if (pageYOffset >= sectionTop && pageYOffset < sectionTop + sectionHeight) {
       current = section.getAttribute('id');
@@ -114,8 +121,9 @@ if (bookingForm) {
     bookingMsg.innerHTML = '✨ Thank you, beautiful bride! We will contact you within 24 hours. ✨';
     bookingMsg.style.color = '#e6b422';
     bookingMsg.style.marginTop = '20px';
-    bookingMsg.style.fontSize = '1rem';
+    bookingMsg.style.fontSize = '0.9rem';
     bookingMsg.style.fontWeight = '500';
+    bookingMsg.style.textAlign = 'center';
     bookingForm.reset();
     setTimeout(() => { 
       bookingMsg.innerHTML = ''; 
@@ -128,65 +136,54 @@ const contactForm = document.getElementById('contactForm');
 if (contactForm) {
   contactForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    // Create premium toast notification
-    const toast = document.createElement('div');
-    toast.innerHTML = '✨ Message sent! Our team will reply within 24 hours. ✨';
-    toast.style.position = 'fixed';
-    toast.style.bottom = '30px';
-    toast.style.right = '30px';
-    toast.style.backgroundColor = '#e6b422';
-    toast.style.color = '#0a0806';
-    toast.style.padding = '15px 30px';
-    toast.style.borderRadius = '50px';
-    toast.style.fontWeight = '700';
-    toast.style.fontSize = '0.95rem';
-    toast.style.zIndex = '9999';
-    toast.style.boxShadow = '0 10px 25px rgba(0,0,0,0.3)';
-    toast.style.animation = 'slideInRight 0.3s ease';
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 4000);
+    showToast('✨ Message sent! Our team will reply within 24 hours. ✨');
     contactForm.reset();
   });
 }
 
-// Add to Cart with premium animation
+// Toast notification function
+function showToast(message) {
+  const toast = document.createElement('div');
+  toast.innerHTML = message;
+  toast.style.position = 'fixed';
+  toast.style.bottom = '20px';
+  toast.style.left = '50%';
+  toast.style.transform = 'translateX(-50%)';
+  toast.style.backgroundColor = '#e6b422';
+  toast.style.color = '#0a0806';
+  toast.style.padding = '12px 20px';
+  toast.style.borderRadius = '50px';
+  toast.style.fontWeight = '700';
+  toast.style.fontSize = '0.85rem';
+  toast.style.zIndex = '9999';
+  toast.style.boxShadow = '0 10px 25px rgba(0,0,0,0.3)';
+  toast.style.whiteSpace = 'nowrap';
+  toast.style.maxWidth = '90%';
+  toast.style.whiteSpace = 'normal';
+  toast.style.textAlign = 'center';
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3500);
+}
+
+// Add to Cart
 const addToCartBtns = document.querySelectorAll('.add-to-cart');
 addToCartBtns.forEach(btn => {
   btn.addEventListener('click', (e) => {
     e.stopPropagation();
     const productCard = btn.closest('.product-card');
     const productName = productCard?.querySelector('h3')?.innerText || 'Item';
-    const productPrice = productCard?.querySelector('.price')?.innerText || '';
-    
-    // Create floating cart animation
-    const toast = document.createElement('div');
-    toast.innerHTML = `<i class="fas fa-shopping-cart" style="margin-right: 10px;"></i> ${productName} added to cart ${productPrice ? `- ${productPrice}` : ''}`;
-    toast.style.position = 'fixed';
-    toast.style.bottom = '30px';
-    toast.style.right = '30px';
-    toast.style.backgroundColor = '#1a1a1a';
-    toast.style.color = '#e6b422';
-    toast.style.border = '1px solid #e6b422';
-    toast.style.padding = '14px 28px';
-    toast.style.borderRadius = '50px';
-    toast.style.fontWeight = '600';
-    toast.style.fontSize = '0.95rem';
-    toast.style.zIndex = '9999';
-    toast.style.boxShadow = '0 10px 30px rgba(0,0,0,0.4)';
-    toast.style.backdropFilter = 'blur(10px)';
-    toast.style.animation = 'slideInRight 0.3s ease';
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
+    showToast(`✨ ${productName} added to cart ✨`);
     
     // Button animation
+    const originalHTML = btn.innerHTML;
     btn.innerHTML = 'Added! <i class="fas fa-check"></i>';
     setTimeout(() => {
-      btn.innerHTML = 'Add to Cart <i class="fas fa-shopping-cart"></i>';
+      btn.innerHTML = originalHTML;
     }, 1500);
   });
 });
 
-// Gallery image click (Lightbox)
+// Gallery lightbox
 const galleryItems = document.querySelectorAll('.gallery-item');
 galleryItems.forEach(item => {
   item.addEventListener('click', () => {
@@ -204,15 +201,15 @@ galleryItems.forEach(item => {
       lightbox.style.justifyContent = 'center';
       lightbox.style.alignItems = 'center';
       lightbox.style.cursor = 'pointer';
-      lightbox.style.backdropFilter = 'blur(5px)';
+      lightbox.style.padding = '20px';
       lightbox.innerHTML = `
-        <div style="position: relative;">
-          <img src="${imgSrc}" style="max-width: 90vw; max-height: 85vh; border-radius: 25px; border: 3px solid #e6b422; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
-          <div style="position: absolute; top: -40px; right: -40px; color: #e6b422; font-size: 2rem; cursor: pointer; background: rgba(0,0,0,0.5); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">&times;</div>
+        <div style="position: relative; max-width: 95%; max-height: 95%;">
+          <img src="${imgSrc}" style="width: 100%; height: auto; max-height: 85vh; object-fit: contain; border-radius: 15px; border: 2px solid #e6b422;">
+          <div style="position: absolute; top: -40px; right: -10px; color: #e6b422; font-size: 2rem; cursor: pointer; background: rgba(0,0,0,0.5); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">&times;</div>
         </div>
       `;
       lightbox.addEventListener('click', (e) => {
-        if (e.target === lightbox || e.target.closest('div')?.querySelector('div') === e.target) {
+        if (e.target === lightbox || e.target.closest('div')?.innerText === '×') {
           lightbox.remove();
         }
       });
@@ -221,63 +218,7 @@ galleryItems.forEach(item => {
   });
 });
 
-// Add animation keyframes dynamically
-const styleSheet = document.createElement('style');
-styleSheet.textContent = `
-  @keyframes slideInRight {
-    from { transform: translateX(100px); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-  }
-  
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-  }
-  
-  .product-card:hover .add-to-cart {
-    animation: pulse 0.5s ease;
-  }
-`;
-document.head.appendChild(styleSheet);
-
-// Smooth reveal for stats numbers (counter animation)
-const statNumbers = document.querySelectorAll('.stat-number');
-const animateNumbers = () => {
-  statNumbers.forEach(stat => {
-    const target = parseInt(stat.innerText);
-    if (target && !stat.hasAttribute('data-animated')) {
-      let current = 0;
-      const increment = target / 50;
-      const updateNumber = () => {
-        current += increment;
-        if (current < target) {
-          stat.innerText = Math.floor(current) + (stat.innerText.includes('+') ? '+' : '');
-          requestAnimationFrame(updateNumber);
-        } else {
-          stat.innerText = target + (stat.innerText.includes('+') ? '+' : '');
-          stat.setAttribute('data-animated', 'true');
-        }
-      };
-      updateNumber();
-    }
-  });
-};
-
-// Trigger counter when stats come into view
-const observerOptions = { threshold: 0.5, rootMargin: '0px' };
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      animateNumbers();
-      observer.unobserve(entry.target);
-    }
-  });
-}, observerOptions);
-
-const statsGrid = document.querySelector('.stats-grid');
-if (statsGrid) observer.observe(statsGrid);
-
-// Instagram feed hover effect
+// Instagram feed click
 const instaPosts = document.querySelectorAll('.insta-post');
 instaPosts.forEach(post => {
   post.addEventListener('click', () => {
@@ -285,10 +226,42 @@ instaPosts.forEach(post => {
   });
 });
 
-// WhatsApp button click tracking
-const whatsappBtn = document.querySelector('.whatsapp-btn');
-if (whatsappBtn) {
-  whatsappBtn.addEventListener('click', () => {
-    console.log('WhatsApp chat initiated');
+// Stats counter animation
+const statNumbers = document.querySelectorAll('.stat-number');
+let animated = false;
+
+const animateNumbers = () => {
+  if (animated) return;
+  statNumbers.forEach(stat => {
+    const targetText = stat.innerText;
+    const target = parseInt(targetText);
+    if (target && !isNaN(target)) {
+      let current = 0;
+      const increment = target / 40;
+      const updateNumber = () => {
+        current += increment;
+        if (current < target) {
+          stat.innerText = Math.floor(current) + (targetText.includes('+') ? '+' : '');
+          requestAnimationFrame(updateNumber);
+        } else {
+          stat.innerText = target + (targetText.includes('+') ? '+' : '');
+        }
+      };
+      updateNumber();
+    }
   });
+  animated = true;
+};
+
+const statsGrid = document.querySelector('.stats-grid');
+if (statsGrid) {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        animateNumbers();
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+  observer.observe(statsGrid);
 }
