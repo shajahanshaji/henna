@@ -111,35 +111,88 @@ window.addEventListener('scroll', () => {
   });
 });
 
-// Booking form handler
-const bookingForm = document.getElementById('bookingForm');
-const bookingMsg = document.getElementById('bookingMsg');
+// 🔥 IMPORT FIREBASE (CDN VERSION)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-if (bookingForm) {
-  bookingForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    bookingMsg.innerHTML = '✨ Thank you, beautiful bride! We will contact you within 24 hours. ✨';
-    bookingMsg.style.color = '#e6b422';
-    bookingMsg.style.marginTop = '20px';
-    bookingMsg.style.fontSize = '0.9rem';
-    bookingMsg.style.fontWeight = '500';
-    bookingMsg.style.textAlign = 'center';
+// 🔥 YOUR CONFIG (ALREADY CORRECT)
+const firebaseConfig = {
+  apiKey: "AIzaSyC4IeK0o8GPImZYB3cexeB1t9EfUTstJgk",
+  authDomain: "nafee-henna-works.firebaseapp.com",
+  projectId: "nafee-henna-works",
+  storageBucket: "nafee-henna-works.firebasestorage.app",
+  messagingSenderId: "617505431228",
+  appId: "1:617505431228:web:f04ec87f7f03b39c6e3ab9"
+};
+
+// 🔥 INIT
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+
+// ======================
+// BOOKING FORM
+// ======================
+const bookingForm = document.getElementById("bookingForm");
+const bookingMsg = document.getElementById("bookingMsg");
+
+bookingForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const data = {
+    name: document.getElementById("bookName").value,
+    email: document.getElementById("bookEmail").value,
+    service: document.getElementById("bookService").value,
+    date: document.getElementById("bookDate").value,
+    message: document.getElementById("bookMessage").value,
+    createdAt: new Date()
+  };
+
+  try {
+    await addDoc(collection(db, "bookings"), data);
+
+    bookingMsg.innerText = "✅ Booking saved!";
+    bookingMsg.style.color = "lightgreen";
+
     bookingForm.reset();
-    setTimeout(() => { 
-      bookingMsg.innerHTML = ''; 
-    }, 5000);
-  });
-}
+  } catch (error) {
+    console.error(error);
+    bookingMsg.innerText = "❌ Error!";
+    bookingMsg.style.color = "red";
+  }
+});
 
-// Contact form handler
-const contactForm = document.getElementById('contactForm');
-if (contactForm) {
-  contactForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    showToast('✨ Message sent! Our team will reply within 24 hours. ✨');
+
+// ======================
+// CONTACT FORM
+// ======================
+const contactForm = document.getElementById("contactForm");
+const contactMsg = document.getElementById("contactMsg");
+
+contactForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const data = {
+    name: document.getElementById("contactName").value,
+    email: document.getElementById("contactEmail").value,
+    message: document.getElementById("contactMessage").value,
+    createdAt: new Date()
+  };
+
+  try {
+    await addDoc(collection(db, "contacts"), data);
+
+    contactMsg.innerText = "✅ Message sent!";
+    contactMsg.style.color = "lightgreen";
+
     contactForm.reset();
-  });
-}
+  } catch (error) {
+  console.error("FULL ERROR:", error);
+  contactMsg.innerText = error.message;
+  }
+  }
+);
+
 
 // Toast notification function
 function showToast(message) {
@@ -183,39 +236,399 @@ addToCartBtns.forEach(btn => {
   });
 });
 
-// Gallery lightbox
-const galleryItems = document.querySelectorAll('.gallery-item');
-galleryItems.forEach(item => {
-  item.addEventListener('click', () => {
-    const imgSrc = item.querySelector('img')?.src;
-    if (imgSrc) {
-      const lightbox = document.createElement('div');
-      lightbox.style.position = 'fixed';
-      lightbox.style.top = '0';
-      lightbox.style.left = '0';
-      lightbox.style.width = '100%';
-      lightbox.style.height = '100%';
-      lightbox.style.backgroundColor = 'rgba(0,0,0,0.95)';
-      lightbox.style.zIndex = '10001';
-      lightbox.style.display = 'flex';
-      lightbox.style.justifyContent = 'center';
-      lightbox.style.alignItems = 'center';
-      lightbox.style.cursor = 'pointer';
-      lightbox.style.padding = '20px';
-      lightbox.innerHTML = `
-        <div style="position: relative; max-width: 95%; max-height: 95%;">
-          <img src="${imgSrc}" style="width: 100%; height: auto; max-height: 85vh; object-fit: contain; border-radius: 15px; border: 2px solid #e6b422;">
-          <div style="position: absolute; top: -40px; right: -10px; color: #e6b422; font-size: 2rem; cursor: pointer; background: rgba(0,0,0,0.5); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">&times;</div>
-        </div>
-      `;
-      lightbox.addEventListener('click', (e) => {
-        if (e.target === lightbox || e.target.closest('div')?.innerText === '×') {
-          lightbox.remove();
+// Gallery Slider with Auto-Slide Functionality
+function initGallerySliders() {
+  const galleryItems = document.querySelectorAll('.gallery-item');
+  
+  galleryItems.forEach((item, index) => {
+    const slider = item.querySelector('.gallery-slider');
+    if (!slider) return;
+    
+    const track = slider.querySelector('.slider-track');
+    const images = track.querySelectorAll('img');
+    const prevBtn = slider.querySelector('.prev-btn');
+    const nextBtn = slider.querySelector('.next-btn');
+    const dotsContainer = slider.querySelector('.slider-dots');
+    
+    if (images.length <= 1) return;
+    
+    let currentIndex = 0;
+    const totalImages = images.length;
+    let autoSlideInterval;
+    let isHovering = false;
+    let slideDelay = 3000; // 3 seconds per slide
+    
+    // Create dots
+    if (dotsContainer) {
+      dotsContainer.innerHTML = '';
+      for (let i = 0; i < totalImages; i++) {
+        const dot = document.createElement('div');
+        dot.classList.add('dot');
+        if (i === 0) dot.classList.add('active');
+        dot.addEventListener('click', () => {
+          stopAutoSlide();
+          goToImage(i);
+          startAutoSlide();
+        });
+        dotsContainer.appendChild(dot);
+      }
+    }
+    
+    function updateSlider() {
+      const width = images[0]?.clientWidth || track.parentElement.clientWidth;
+      track.style.transform = `translateX(-${currentIndex * width}px)`;
+      track.style.transition = 'transform 0.5s ease-in-out';
+      
+      // Update dots
+      if (dotsContainer) {
+        const dots = dotsContainer.querySelectorAll('.dot');
+        dots.forEach((dot, i) => {
+          dot.classList.toggle('active', i === currentIndex);
+        });
+      }
+    }
+    
+    function goToImage(index) {
+      currentIndex = index;
+      updateSlider();
+    }
+    
+    function nextImage() {
+      currentIndex = (currentIndex + 1) % totalImages;
+      updateSlider();
+    }
+    
+    function prevImage() {
+      currentIndex = (currentIndex - 1 + totalImages) % totalImages;
+      updateSlider();
+    }
+    
+    // Start auto-slide
+    function startAutoSlide() {
+      if (autoSlideInterval) clearInterval(autoSlideInterval);
+      if (totalImages <= 1) return;
+      autoSlideInterval = setInterval(() => {
+        if (!isHovering) {
+          nextImage();
         }
+      }, slideDelay);
+    }
+    
+    // Stop auto-slide
+    function stopAutoSlide() {
+      if (autoSlideInterval) {
+        clearInterval(autoSlideInterval);
+        autoSlideInterval = null;
+      }
+    }
+    
+    // Reset auto-slide timer
+    function resetAutoSlide() {
+      stopAutoSlide();
+      startAutoSlide();
+    }
+    
+    // Event listeners for manual navigation
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+        stopAutoSlide();
+        nextImage();
+        startAutoSlide();
       });
-      document.body.appendChild(lightbox);
+    }
+    
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => {
+        stopAutoSlide();
+        prevImage();
+        startAutoSlide();
+      });
+    }
+    
+    // Pause auto-slide on hover
+    slider.addEventListener('mouseenter', () => {
+      isHovering = true;
+      stopAutoSlide();
+    });
+    
+    slider.addEventListener('mouseleave', () => {
+      isHovering = false;
+      startAutoSlide();
+    });
+    
+    // Touch support for mobile (pause on touch)
+    slider.addEventListener('touchstart', () => {
+      isHovering = true;
+      stopAutoSlide();
+    });
+    
+    slider.addEventListener('touchend', () => {
+      setTimeout(() => {
+        isHovering = false;
+        startAutoSlide();
+      }, 3000);
+    });
+    
+    // Update on window resize
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        updateSlider();
+      }, 100);
+    });
+    
+    // Start auto-slide
+    startAutoSlide();
+    
+    // Store interval reference on the element for cleanup if needed
+    slider.autoSlideInterval = autoSlideInterval;
+  });
+}
+
+// Full Collection Lightbox Data
+const fullCollections = [
+  {
+    id: 0,
+    title: "Bridal Mehndi Collection",
+    images: [
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Bridal+Hand+1",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Bridal+Hand+2",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Bridal+Hand+3",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Bridal+Hand+4",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Bridal+Hand+5",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Bridal+Hand+6",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Bridal+Hand+7",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Bridal+Hand+8",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Bridal+Hand+9",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Bridal+Hand+10",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Bridal+Hand+11",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Bridal+Hand+12"
+    ]
+  },
+  {
+    id: 1,
+    title: "Arabic Henna Art",
+    images: [
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Arabic+1",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Arabic+2",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Arabic+3",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Arabic+4",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Arabic+5",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Arabic+6",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Arabic+7",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Arabic+8"
+    ]
+  },
+  {
+    id: 2,
+    title: "Feet Mehndi",
+    images: [
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Feet+Design+1",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Feet+Design+2",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Feet+Design+3",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Feet+Design+4",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Feet+Design+5",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Feet+Design+6"
+    ]
+  },
+  {
+    id: 3,
+    title: "Product Result",
+    images: [
+      "images/gallery/result/1.jpg",
+      "images/gallery/result/2.jpg",
+      "images/gallery/result/3.jpg",
+      "images/gallery/result/4.jpg",
+      "images/gallery/result/5.jpg",
+      "images/gallery/result/6.jpg",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Fusion+7",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Fusion+8",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Fusion+9",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Fusion+10",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Fusion+11",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Fusion+12",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Fusion+13",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Fusion+14",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Fusion+15"
+    ]
+  },
+  {
+    id: 4,
+    title: "Traditional Rajasthani",
+    images: [
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Rajasthani+1",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Rajasthani+2",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Rajasthani+3",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Rajasthani+4",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Rajasthani+5",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Rajasthani+6",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Rajasthani+7",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Rajasthani+8",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Rajasthani+9",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Rajasthani+10"
+    ]
+  },
+  {
+    id: 5,
+    title: "Minimalist Designs",
+    images: [
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Minimal+1",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Minimal+2",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Minimal+3",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Minimal+4",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Minimal+5",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Minimal+6",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Minimal+7",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Minimal+8",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Minimal+9",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Minimal+10",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Minimal+11",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Minimal+12",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Minimal+13",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Minimal+14",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Minimal+15",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Minimal+16",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Minimal+17",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Minimal+18",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Minimal+19",
+      "https://placehold.co/800x1000/1a1a1a/d4af37?text=Minimal+20"
+    ]
+  }
+];
+
+// Open Full Collection Lightbox
+function openFullCollection(collectionId) {
+  const collection = fullCollections[collectionId];
+  if (!collection) return;
+  
+  let currentIndex = 0;
+  const images = collection.images;
+  
+  const lightbox = document.createElement('div');
+  lightbox.className = 'lightbox-full';
+  lightbox.innerHTML = `
+    <div class="lightbox-close">&times;</div>
+    <div class="lightbox-nav lightbox-prev"><i class="fas fa-chevron-left"></i></div>
+    <div class="lightbox-nav lightbox-next"><i class="fas fa-chevron-right"></i></div>
+    <img class="lightbox-main-image" src="${images[0]}" alt="${collection.title}">
+    <div class="lightbox-counter">${currentIndex + 1} / ${images.length}</div>
+    <div class="lightbox-title">${collection.title}</div>
+    <div class="lightbox-thumbnails"></div>
+  `;
+  
+  // Add thumbnails
+  const thumbnailsContainer = lightbox.querySelector('.lightbox-thumbnails');
+  images.forEach((img, idx) => {
+    const thumb = document.createElement('img');
+    thumb.src = img;
+    thumb.alt = `${collection.title} ${idx + 1}`;
+    thumb.addEventListener('click', () => {
+      currentIndex = idx;
+      updateImage();
+      updateActiveThumb();
+    });
+    thumbnailsContainer.appendChild(thumb);
+  });
+  
+  document.body.appendChild(lightbox);
+  document.body.style.overflow = 'hidden';
+  
+  const mainImg = lightbox.querySelector('.lightbox-main-image');
+  const counter = lightbox.querySelector('.lightbox-counter');
+  const thumbs = lightbox.querySelectorAll('.lightbox-thumbnails img');
+  
+  function updateImage() {
+    mainImg.src = images[currentIndex];
+    counter.innerHTML = `${currentIndex + 1} / ${images.length}`;
+    updateActiveThumb();
+  }
+  
+  function updateActiveThumb() {
+    thumbs.forEach((thumb, idx) => {
+      thumb.classList.toggle('active-thumb', idx === currentIndex);
+    });
+  }
+  
+  function nextImage() {
+    currentIndex = (currentIndex + 1) % images.length;
+    updateImage();
+  }
+  
+  function prevImage() {
+    currentIndex = (currentIndex - 1 + images.length) % images.length;
+    updateImage();
+  }
+  
+  lightbox.querySelector('.lightbox-next').addEventListener('click', (e) => {
+    e.stopPropagation();
+    nextImage();
+  });
+  
+  lightbox.querySelector('.lightbox-prev').addEventListener('click', (e) => {
+    e.stopPropagation();
+    prevImage();
+  });
+  
+  lightbox.querySelector('.lightbox-close').addEventListener('click', () => {
+    lightbox.remove();
+    document.body.style.overflow = '';
+  });
+  
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox) {
+      lightbox.remove();
+      document.body.style.overflow = '';
     }
   });
+  
+  // Keyboard navigation
+  const keydownHandler = (e) => {
+    if (!document.querySelector('.lightbox-full')) return;
+    if (e.key === 'ArrowRight') nextImage();
+    if (e.key === 'ArrowLeft') prevImage();
+    if (e.key === 'Escape') {
+      lightbox.remove();
+      document.body.style.overflow = '';
+      document.removeEventListener('keydown', keydownHandler);
+    }
+  };
+  document.addEventListener('keydown', keydownHandler);
+  
+  updateActiveThumb();
+}
+
+// Initialize everything when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  // Initialize auto-slide galleries
+  initGallerySliders();
+  
+  // Attach click events to gallery overlays for full collection view
+  const galleryItems = document.querySelectorAll('.gallery-item');
+  galleryItems.forEach((item, index) => {
+    const overlay = item.querySelector('.gallery-overlay');
+    if (overlay) {
+      overlay.addEventListener('click', () => {
+        openFullCollection(index);
+      });
+    }
+  });
+});
+
+// Optional: Pause all auto-slides when page is not visible (saves resources)
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    // Pause all sliders when tab is not visible
+    document.querySelectorAll('.gallery-slider').forEach(slider => {
+      if (slider.autoSlideInterval) {
+        clearInterval(slider.autoSlideInterval);
+        slider.autoSlideInterval = null;
+      }
+    });
+  } else {
+    // Restart all sliders when tab becomes visible
+    initGallerySliders();
+  }
 });
 
 // Instagram feed click

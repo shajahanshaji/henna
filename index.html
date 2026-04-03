@@ -193,20 +193,20 @@
         <h3><i class="fas fa-calendar-check"></i> Book Your Henna Experience</h3>
         <form id="bookingForm">
           <div class="form-row">
-            <input type="text" placeholder="Your Name" required id="bookName">
-            <input type="email" placeholder="Email Address" required id="bookEmail">
+            <input type="text" id="bookName" name="name" placeholder="Your Name" required>
+            <input type="email" id="bookEmail" name="email" placeholder="Your Email" required>
           </div>
-          <select required id="bookService">
+          <select id="bookService" name="service" required>
             <option value="">Select Service</option>
             <option>Bridal Henna Package</option>
             <option>Festival/Event Henna</option>
             <option>Custom Designs</option>
           </select>
           <div class="form-row">
-            <input type="date" id="bookDate">
+            <input type="date" id="bookDate" name="date">
             <input type="text" placeholder="Event Location">
           </div>
-          <textarea rows="3" placeholder="Tell us about your design ideas..."></textarea>
+          <textarea rows="3" id="bookMessage" name="message" placeholder="Tell us about your design ideas..."></textarea>
           <button type="submit" class="btn-primary">Request Booking <i class="fas fa-arrow-right"></i></button>
         </form>
         <p id="bookingMsg"></p>
@@ -214,27 +214,166 @@
     </div>
   </section>
 
-  <!-- GALLERY SECTION -->
+  <!-- GALLERY SECTION - Multiple Images Inside Each Box (Carousel/Slider) -->
   <section id="gallery">
     <div class="container">
       <h2 class="section-title" data-aos="fade-up">Artistry Gallery</h2>
       <p class="section-sub" data-aos="fade-up" data-aos-delay="100">Explore our finest mehndi creations</p>
       <div class="gallery-grid">
+        
+        <!-- Gallery Item 1 - Bridal Collection -->
         <div class="gallery-item" data-aos="zoom-in" data-aos-delay="0">
-          <img src="https://placehold.co/400x500/1a1a1a/d4af37?text=Bridal+Hand+Mehndi" alt="Bridal hand mehndi">
-          <div class="gallery-overlay"><i class="fas fa-search-plus"></i></div>
+          <div class="gallery-slider">
+            <div class="slider-container">
+              <div class="slider-track">
+                <img src="https://placehold.co/600x500/1a1a1a/d4af37?text=Bridal+Hand+1" alt="Bridal hand mehndi 1">
+                <img src="https://placehold.co/600x500/1a1a1a/d4af37?text=Bridal+Hand+2" alt="Bridal hand mehndi 2">
+                <img src="https://placehold.co/600x500/1a1a1a/d4af37?text=Bridal+Hand+3" alt="Bridal hand mehndi 3">
+                <img src="https://placehold.co/600x500/1a1a1a/d4af37?text=Bridal+Hand+4" alt="Bridal hand mehndi 4">
+                <img src="https://placehold.co/600x500/1a1a1a/d4af37?text=Bridal+Hand+5" alt="Bridal hand mehndi 5">
+              </div>
+            </div>
+            <button class="slider-btn prev-btn"><i class="fas fa-chevron-left"></i></button>
+            <button class="slider-btn next-btn"><i class="fas fa-chevron-right"></i></button>
+            <div class="slider-dots"></div>
+          </div>
+          <div class="gallery-info">
+            <h3>Bridal Mehndi Collection</h3>
+            <p>12 exquisite designs <span class="image-count">(5 of 12 shown)</span></p>
+          </div>
+          <div class="gallery-overlay">
+            <i class="fas fa-expand-alt"></i>
+            <span>View Full Collection</span>
+          </div>
         </div>
+
+        <!-- Gallery Item 2 - Arabic Designs -->
         <div class="gallery-item" data-aos="zoom-in" data-aos-delay="100">
-          <img src="https://placehold.co/400x500/1a1a1a/d4af37?text=Arabic+Henna+Design" alt="Arabic henna">
-          <div class="gallery-overlay"><i class="fas fa-search-plus"></i></div>
+          <div class="gallery-slider">
+            <div class="slider-container">
+              <div class="slider-track">
+                <img src="https://placehold.co/600x500/1a1a1a/d4af37?text=Arabic+1" alt="Arabic design 1">
+                <img src="https://placehold.co/600x500/1a1a1a/d4af37?text=Arabic+2" alt="Arabic design 2">
+                <img src="https://placehold.co/600x500/1a1a1a/d4af37?text=Arabic+3" alt="Arabic design 3">
+                <img src="https://placehold.co/600x500/1a1a1a/d4af37?text=Arabic+4" alt="Arabic design 4">
+                <img src="https://placehold.co/600x500/1a1a1a/d4af37?text=Arabic+5" alt="Arabic design 5">
+                <img src="https://placehold.co/600x500/1a1a1a/d4af37?text=Arabic+6" alt="Arabic design 6">
+              </div>
+            </div>
+            <button class="slider-btn prev-btn"><i class="fas fa-chevron-left"></i></button>
+            <button class="slider-btn next-btn"><i class="fas fa-chevron-right"></i></button>
+            <div class="slider-dots"></div>
+          </div>
+          <div class="gallery-info">
+            <h3>Arabic Henna Art</h3>
+            <p>8 modern designs <span class="image-count">(6 of 8 shown)</span></p>
+          </div>
+          <div class="gallery-overlay">
+            <i class="fas fa-expand-alt"></i>
+            <span>View Full Collection</span>
+          </div>
         </div>
+
+        <!-- Gallery Item 3 - Feet Mehndi -->
         <div class="gallery-item" data-aos="zoom-in" data-aos-delay="200">
-          <img src="https://placehold.co/400x500/1a1a1a/d4af37?text=Feet+Mehndi+Pattern" alt="Feet mehndi">
-          <div class="gallery-overlay"><i class="fas fa-search-plus"></i></div>
+          <div class="gallery-slider">
+            <div class="slider-container">
+              <div class="slider-track">
+                <img src="https://placehold.co/600x500/1a1a1a/d4af37?text=Feet+Design+1" alt="Feet mehndi 1">
+                <img src="https://placehold.co/600x500/1a1a1a/d4af37?text=Feet+Design+2" alt="Feet mehndi 2">
+                <img src="https://placehold.co/600x500/1a1a1a/d4af37?text=Feet+Design+3" alt="Feet mehndi 3">
+                <img src="https://placehold.co/600x500/1a1a1a/d4af37?text=Feet+Design+4" alt="Feet mehndi 4">
+              </div>
+            </div>
+            <button class="slider-btn prev-btn"><i class="fas fa-chevron-left"></i></button>
+            <button class="slider-btn next-btn"><i class="fas fa-chevron-right"></i></button>
+            <div class="slider-dots"></div>
+          </div>
+          <div class="gallery-info">
+            <h3>Feet Mehndi</h3>
+            <p>6 elegant patterns <span class="image-count">(4 of 6 shown)</span></p>
+          </div>
+          <div class="gallery-overlay">
+            <i class="fas fa-expand-alt"></i>
+            <span>View Full Collection</span>
+          </div>
         </div>
+
+        <!-- Gallery Item 4 - Products Result -->
         <div class="gallery-item" data-aos="zoom-in" data-aos-delay="300">
-          <img src="https://placehold.co/400x500/1a1a1a/d4af37?text=Modern+Bridal+Art" alt="modern bridal">
-          <div class="gallery-overlay"><i class="fas fa-search-plus"></i></div>
+          <div class="gallery-slider">
+            <div class="slider-container">
+              <div class="slider-track">
+                <img src="images/gallery/result/1.jpg" alt="Review 1">
+                <img src="images/gallery/result/2.jpg" alt="Review 2">
+                <img src="images/gallery/result/3.jpg" alt="Review 3">
+                <img src="images/gallery/result/4.jpg" alt="Review 4">
+                <img src="images/gallery/result/5.jpg" alt="Review 5">
+              </div>
+            </div>
+            <button class="slider-btn prev-btn"><i class="fas fa-chevron-left"></i></button>
+            <button class="slider-btn next-btn"><i class="fas fa-chevron-right"></i></button>
+            <div class="slider-dots"></div>
+          </div>
+          <div class="gallery-info">
+            <h3>Products Result</h3>
+            <p>15 contemporary designs <span class="image-count">(5 of 15 shown)</span></p>
+          </div>
+          <div class="gallery-overlay">
+            <i class="fas fa-expand-alt"></i>
+            <span>View Full Collection</span>
+          </div>
+        </div>
+
+        <!-- Gallery Item 5 - Traditional Rajasthani -->
+        <div class="gallery-item" data-aos="zoom-in" data-aos-delay="400">
+          <div class="gallery-slider">
+            <div class="slider-container">
+              <div class="slider-track">
+                <img src="https://placehold.co/600x500/1a1a1a/d4af37?text=Rajasthani+1" alt="Rajasthani 1">
+                <img src="https://placehold.co/600x500/1a1a1a/d4af37?text=Rajasthani+2" alt="Rajasthani 2">
+                <img src="https://placehold.co/600x500/1a1a1a/d4af37?text=Rajasthani+3" alt="Rajasthani 3">
+                <img src="https://placehold.co/600x500/1a1a1a/d4af37?text=Rajasthani+4" alt="Rajasthani 4">
+              </div>
+            </div>
+            <button class="slider-btn prev-btn"><i class="fas fa-chevron-left"></i></button>
+            <button class="slider-btn next-btn"><i class="fas fa-chevron-right"></i></button>
+            <div class="slider-dots"></div>
+          </div>
+          <div class="gallery-info">
+            <h3>Traditional Rajasthani</h3>
+            <p>10 heritage designs <span class="image-count">(4 of 10 shown)</span></p>
+          </div>
+          <div class="gallery-overlay">
+            <i class="fas fa-expand-alt"></i>
+            <span>View Full Collection</span>
+          </div>
+        </div>
+
+        <!-- Gallery Item 6 - Minimalist Designs -->
+        <div class="gallery-item" data-aos="zoom-in" data-aos-delay="500">
+          <div class="gallery-slider">
+            <div class="slider-container">
+              <div class="slider-track">
+                <img src="https://placehold.co/600x500/1a1a1a/d4af37?text=Minimal+1" alt="Minimal 1">
+                <img src="https://placehold.co/600x500/1a1a1a/d4af37?text=Minimal+2" alt="Minimal 2">
+                <img src="https://placehold.co/600x500/1a1a1a/d4af37?text=Minimal+3" alt="Minimal 3">
+                <img src="https://placehold.co/600x500/1a1a1a/d4af37?text=Minimal+4" alt="Minimal 4">
+                <img src="https://placehold.co/600x500/1a1a1a/d4af37?text=Minimal+5" alt="Minimal 5">
+              </div>
+            </div>
+            <button class="slider-btn prev-btn"><i class="fas fa-chevron-left"></i></button>
+            <button class="slider-btn next-btn"><i class="fas fa-chevron-right"></i></button>
+            <div class="slider-dots"></div>
+          </div>
+          <div class="gallery-info">
+            <h3>Minimalist Designs</h3>
+            <p>20 delicate patterns <span class="image-count">(5 of 20 shown)</span></p>
+          </div>
+          <div class="gallery-overlay">
+            <i class="fas fa-expand-alt"></i>
+            <span>View Full Collection</span>
+          </div>
         </div>
       </div>
     </div>
@@ -273,15 +412,16 @@
         <div class="contact-form" data-aos="fade-right">
           <h3><i class="fas fa-envelope"></i> Send us a message</h3>
           <form id="contactForm">
-            <input type="text" placeholder="Full Name" required>
-            <input type="email" placeholder="Email" required>
-            <textarea rows="4" placeholder="Tell us about your henna needs..."></textarea>
+            <input type="text" id="contactName" name="name" placeholder="Name" required>
+            <input type="email" id="contactEmail" name="email" placeholder="Email" required>
+            <textarea rows="4" id="contactMessage" name="message" placeholder="Tell us about your henna needs..."></textarea>
             <button type="submit" class="btn-primary">Send Message <i class="fas fa-paper-plane"></i></button>
           </form>
+          <p id="contactMsg"></p>
         </div>
         <div class="contact-info" data-aos="fade-left">
           <h3> Get in Touch</h3>
-          <p><i class="fas fa-location-dot"></i> Trichirappalli, Tamil Nadu </p>
+          <p><i class="fas fa-location-dot"></i> Tiruchirappalli,Tamil Nadu </p>
           <p><i class="fas fa-phone-alt"></i> +91 9344633571</p>
           <a href="https://wa.me/9344633571" class="whatsapp-btn" target="_blank"><i class="fab fa-whatsapp"></i> Chat on WhatsApp</a>
           <div class="social-links">
@@ -359,6 +499,6 @@
 </footer>
 
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-<script src="script.js"></script>
+<script type="module" src="script.js"></script>
 </body>
 </html>
